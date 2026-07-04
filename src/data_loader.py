@@ -1,9 +1,3 @@
-"""
-data_loader.py
-
-This module is responsible for loading different versions of the dataset.
-"""
-
 from pathlib import Path
 
 import pandas as pd

@@ -1,9 +1,3 @@
-"""
-preprocessing.py
-
-This module is responsible for preprocessing the raw dataset.
-"""
-
 from pathlib import Path
 
 import pandas as pd
