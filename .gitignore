@@ -17,3 +17,7 @@ mlruns/
 # Operating System
 Thumbs.db
 .DS_Store
+
+# MLflow
+mlflow.db
+mlartifacts/
