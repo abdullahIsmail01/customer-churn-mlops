@@ -42,9 +42,24 @@ def main():
     # آموزش مدل‌ها
     training_output = train_models(feature_df)
 
-    # ارزیابی مدل‌ها
-    evaluation_output = evaluate_models(
+    validation_output = evaluate_models(
         training_output["models"],
+        training_output["X_validation"],
+        training_output["y_validation"],
+    )
+
+    validation_results = validation_output["results"]
+
+    best_model_name = validation_results.sort_values(
+        by="Accuracy",
+        ascending=False,
+    ).iloc[0]["Model"]
+
+    print("\nBest Model Selected:")
+    print(best_model_name)
+
+    evaluation_output = evaluate_models(
+        {best_model_name: training_output["models"][best_model_name]},
         training_output["X_test"],
         training_output["y_test"],
     )
@@ -52,31 +67,29 @@ def main():
     results = evaluation_output["results"]
     confusion_matrices = evaluation_output["confusion_matrices"]
 
-    print("\nModel Evaluation Results")
+    print("\nFinal Test Results")
     print("-" * 60)
     print(results)
 
-    # ثبت نتایج در MLflow
-    for _, row in results.iterrows():
+    # تسجيل أفضل نموذج فقط في MLflow
+    row = results.iloc[0]
 
-        model_name = row["Model"]
-
-        metrics = {
+    metrics = {
         "accuracy": row["Accuracy"],
         "precision": row["Precision"],
         "recall": row["Recall"],
         "f1_score": row["F1 Score"],
         "roc_auc": row["ROC AUC"],
-        "cv_accuracy": training_output["cv_scores"][model_name],
+        "cv_accuracy": training_output["cv_scores"][best_model_name],
     }
 
-        log_experiment(
-            model_name=model_name,
-            model=training_output["models"][model_name],
-            metrics=metrics,
-            dataset_version="v3",
-            seed=42,
-            confusion_matrix_data=confusion_matrices[model_name],
+    log_experiment(
+        model_name=best_model_name,
+        model=training_output["models"][best_model_name],
+        metrics=metrics,
+        dataset_version="v3",
+        seed=42,
+        confusion_matrix_data=confusion_matrices[best_model_name],
     )
 
 

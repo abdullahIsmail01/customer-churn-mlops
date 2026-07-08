@@ -4,15 +4,6 @@ import pandas as pd
 
 
 def load_data(version: str = "v1") -> pd.DataFrame:
-    """
-    Load dataset from the selected version folder.
-
-    Args:
-        version (str): Dataset version (v1, v2 or v3)
-
-    Returns:
-        pd.DataFrame: Loaded dataset
-    """
 
     # مسیر فایل داده بر اساس نسخه انتخاب شده
     data_path = Path("data") / version / "Telco_customer_churn.xlsx"
@@ -28,9 +19,6 @@ def load_data(version: str = "v1") -> pd.DataFrame:
 
 
 def show_dataset_info(df: pd.DataFrame) -> None:
-    """
-    Display basic information about the dataset.
-    """
 
     print("\n========== Dataset Information ==========\n")
 

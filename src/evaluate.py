@@ -28,7 +28,7 @@ def evaluate_models(
             probabilities = model.predict_proba(X_test)[:, 1]
             roc_auc = roc_auc_score(y_test, probabilities)
         else:
-            roc_auc = None
+            roc_auc = float("nan")
 
         cm = confusion_matrix(
             y_test,

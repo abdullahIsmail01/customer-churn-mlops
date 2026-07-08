@@ -96,6 +96,9 @@ def log_experiment(
 
             mlflow.log_artifact(figure_name)
 
+            import os
+            os.remove(figure_name)
+
         except Exception as error:
 
             print(f"\nWarning: Model '{model_name}' was not saved.")

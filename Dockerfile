@@ -4,6 +4,9 @@ FROM python:3.12-slim
 # تعیین پوشه کاری
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y git
+
+
 # کپی فایل وابستگی‌ها
 COPY requirements.txt .
 
