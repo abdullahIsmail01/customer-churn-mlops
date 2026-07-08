@@ -20,4 +20,9 @@ Thumbs.db
 
 # MLflow
 mlflow.db
+mlruns/
 mlartifacts/
+
+# Python
+__pycache__/
+*.pyc

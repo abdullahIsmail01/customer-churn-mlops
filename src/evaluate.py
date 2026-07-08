@@ -6,69 +6,51 @@ from sklearn.metrics import (
     recall_score,
     f1_score,
     roc_auc_score,
+    confusion_matrix,
 )
 
 
 def evaluate_models(
     models: dict,
-    X_test: pd.DataFrame,
-    y_test: pd.Series,
-) -> pd.DataFrame:
-    """
-    Evaluate trained machine learning models.
-
-    Args:
-        models (dict): Dictionary of trained models.
-        X_test (pd.DataFrame): Test features.
-        y_test (pd.Series): Test labels.
-
-    Returns:
-        pd.DataFrame: Evaluation results.
-    """
+    X_test,
+    y_test,
+):
 
     results = []
+    confusion_matrices = {}
 
-    # ارزیابی هر مدل
     for name, model in models.items():
 
         predictions = model.predict(X_test)
 
-        accuracy = accuracy_score(
+        # استخدام الاحتمالات لحساب ROC-AUC
+        if hasattr(model, "predict_proba"):
+            probabilities = model.predict_proba(X_test)[:, 1]
+            roc_auc = roc_auc_score(y_test, probabilities)
+        else:
+            roc_auc = None
+
+        cm = confusion_matrix(
             y_test,
             predictions,
         )
 
-        precision = precision_score(
-            y_test,
-            predictions,
-        )
-
-        recall = recall_score(
-            y_test,
-            predictions,
-        )
-
-        f1 = f1_score(
-            y_test,
-            predictions,
-        )
-
-        roc_auc = roc_auc_score(
-            y_test,
-            predictions,
-        )
+        confusion_matrices[name] = cm
 
         results.append(
             {
                 "Model": name,
-                "Accuracy": accuracy,
-                "Precision": precision,
-                "Recall": recall,
-                "F1 Score": f1,
+                "Accuracy": accuracy_score(y_test, predictions),
+                "Precision": precision_score(y_test, predictions),
+                "Recall": recall_score(y_test, predictions),
+                "F1 Score": f1_score(y_test, predictions),
                 "ROC AUC": roc_auc,
             }
         )
 
-    results_df = pd.DataFrame(results)
-    results_df = results_df.round(4)
-    return results_df
+    results_df = pd.DataFrame(results).round(4)
+
+    return {
+        "results": results_df,
+        "confusion_matrices": confusion_matrices,
+    }

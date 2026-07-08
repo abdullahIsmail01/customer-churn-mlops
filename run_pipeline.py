@@ -43,11 +43,14 @@ def main():
     training_output = train_models(feature_df)
 
     # ارزیابی مدل‌ها
-    results = evaluate_models(
+    evaluation_output = evaluate_models(
         training_output["models"],
         training_output["X_test"],
         training_output["y_test"],
     )
+
+    results = evaluation_output["results"]
+    confusion_matrices = evaluation_output["confusion_matrices"]
 
     print("\nModel Evaluation Results")
     print("-" * 60)
@@ -59,18 +62,22 @@ def main():
         model_name = row["Model"]
 
         metrics = {
-            "accuracy": row["Accuracy"],
-            "precision": row["Precision"],
-            "recall": row["Recall"],
-            "f1_score": row["F1 Score"],
-            "roc_auc": row["ROC AUC"],
-        }
+        "accuracy": row["Accuracy"],
+        "precision": row["Precision"],
+        "recall": row["Recall"],
+        "f1_score": row["F1 Score"],
+        "roc_auc": row["ROC AUC"],
+        "cv_accuracy": training_output["cv_scores"][model_name],
+    }
 
         log_experiment(
             model_name=model_name,
             model=training_output["models"][model_name],
             metrics=metrics,
-        )
+            dataset_version="v3",
+            seed=42,
+            confusion_matrix_data=confusion_matrices[model_name],
+    )
 
 
 if __name__ == "__main__":

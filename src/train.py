@@ -3,11 +3,15 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 from sklearn.preprocessing import StandardScaler
-
+from catboost import CatBoostClassifier
+from sklearn.model_selection import (
+    train_test_split,
+    StratifiedKFold,
+    cross_val_score,
+)
 
 def train_models(df: pd.DataFrame):
 
@@ -37,8 +41,9 @@ def train_models(df: pd.DataFrame):
             random_state=42,
         ),
 
-        "Decision Tree": DecisionTreeClassifier(
+        "CatBoost": CatBoostClassifier(
             random_state=42,
+            verbose=0,
         ),
 
         "Random Forest": RandomForestClassifier(
@@ -52,15 +57,36 @@ def train_models(df: pd.DataFrame):
         ),
     }
 
+    cv = StratifiedKFold(
+        n_splits=5,
+        shuffle=True,
+        random_state=42,
+    )
+
+    cv_scores = {}
+
     # آموزش مدل‌ها
-    for model in models.values():
+    for name, model in models.items():
+
+        scores = cross_val_score(
+            model,
+            X_train,
+            y_train,
+            cv=cv,
+            scoring="accuracy",
+        )
+
+        cv_scores[name] = scores.mean()
+
         model.fit(
             X_train,
             y_train,
         )
 
+
     return {
-    "models": models,
-    "X_test": X_test,
-    "y_test": y_test,
-}
+        "models": models,
+        "X_test": X_test,
+        "y_test": y_test,
+        "cv_scores": cv_scores,
+    }
